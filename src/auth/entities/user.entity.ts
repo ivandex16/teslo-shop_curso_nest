@@ -1,8 +1,10 @@
+import { Product } from 'src/products/entities';
 import {
   BeforeInsert,
   BeforeUpdate,
   Column,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -34,6 +36,16 @@ export class User {
     default: ['user'],
   })
   roles: string[];
+
+  /**
+   * Lista de productos asociados a este usuario.
+   *
+   * Relación uno-a-muchos: un usuario puede tener múltiples productos.
+   *
+   * @type {Product[]}
+   */
+  @OneToMany(() => Product, (product) => product.user)
+  product: Product;
 
   @BeforeInsert()
   checkFiledsBeforeInsert() {

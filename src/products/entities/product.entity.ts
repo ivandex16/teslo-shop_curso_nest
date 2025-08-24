@@ -3,10 +3,12 @@ import {
   BeforeUpdate,
   Column,
   Entity,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { ProductImage } from './product-image.entity';
+import { User } from 'src/auth/entities/user.entity';
 
 @Entity({ name: 'products' })
 export class Product {
@@ -56,6 +58,13 @@ export class Product {
     eager: true, // Carga las imágenes automáticamente al cargar el producto
   })
   images?: ProductImage[];
+
+  @ManyToOne(
+    () => User,
+    (user) => user.product, // Relación inversa: un usuario puede tener múltiples productos
+    { eager: true }, // Carga el usuario automáticamente al cargar el producto
+  )
+  user: User;
 
   @BeforeInsert()
   checkSkugInsert() {
