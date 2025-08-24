@@ -13,6 +13,8 @@ import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
+import { Auth } from 'src/auth/decorator';
+import { ValidRoles } from 'src/auth/interfaces';
 
 // El decorador @Controller('products') indica que todas las rutas de este controlador comienzan con /products
 @Controller('products')
@@ -22,6 +24,7 @@ export class ProductsController {
 
   // Maneja la creación de un nuevo producto (POST /products)
   @Post()
+  @Auth(ValidRoles.admin)
   create(@Body() createProductDto: CreateProductDto) {
     // El decorador @Body() extrae el cuerpo de la petición y lo mapea al DTO
     return this.productsService.create(createProductDto);
@@ -29,6 +32,7 @@ export class ProductsController {
 
   // Obtiene todos los productos con paginación (GET /products)
   @Get()
+  @Auth()
   findAll(@Query() paginationDto: PaginationDto) {
     // El decorador @Query() extrae los parámetros de consulta (query params) y los mapea al DTO de paginación
     return this.productsService.findAll(paginationDto);
@@ -36,6 +40,7 @@ export class ProductsController {
 
   // Obtiene un producto por término (puede ser id, slug, etc.) (GET /products/:term)
   @Get(':term')
+  @Auth()
   findOne(@Param('term') term: string) {
     // El decorador @Param() extrae el parámetro de la ruta llamado 'term'
     return this.productsService.findOnePlain(term);
@@ -43,6 +48,7 @@ export class ProductsController {
 
   // Actualiza un producto por id (PATCH /products/:id)
   @Patch(':id')
+  @Auth(ValidRoles.admin)
   update(
     // El decorador @Param() extrae el parámetro 'id' y lo valida como UUID con ParseUUIDPipe
     @Param('id', new ParseUUIDPipe()) id: string,
@@ -54,6 +60,7 @@ export class ProductsController {
 
   // Elimina un producto por id (DELETE /products/:id)
   @Delete(':id')
+  @Auth(ValidRoles.admin)
   remove(@Param('id', new ParseUUIDPipe()) id: string) {
     // El decorador @Param() extrae el parámetro 'id' y lo valida como UUID con ParseUUIDPipe
     return this.productsService.remove(id);
