@@ -13,8 +13,9 @@ import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
-import { Auth } from 'src/auth/decorator';
+import { Auth, GetUser } from 'src/auth/decorator';
 import { ValidRoles } from 'src/auth/interfaces';
+import { User } from 'src/auth/entities/user.entity';
 
 // El decorador @Controller('products') indica que todas las rutas de este controlador comienzan con /products
 @Controller('products')
@@ -24,10 +25,12 @@ export class ProductsController {
 
   // Maneja la creación de un nuevo producto (POST /products)
   @Post()
-  @Auth(ValidRoles.admin)
-  create(@Body() createProductDto: CreateProductDto) {
-    // El decorador @Body() extrae el cuerpo de la petición y lo mapea al DTO
-    return this.productsService.create(createProductDto);
+  @Auth()
+  create(
+    @Body() createProductDto: CreateProductDto, // El decorador @Body() extrae el cuerpo de la petición y lo mapea al DTO
+    @GetUser() user: User, // El decorador @GetUser() extrae el usuario autenticado de la petición
+  ) {
+    return this.productsService.create(createProductDto, user);
   }
 
   // Obtiene todos los productos con paginación (GET /products)
@@ -54,8 +57,9 @@ export class ProductsController {
     @Param('id', new ParseUUIDPipe()) id: string,
     // El decorador @Body() extrae el cuerpo de la petición y lo mapea al DTO de actualización
     @Body() updateProductDto: UpdateProductDto,
+    @GetUser() user: User, // El decorador @GetUser() extrae el usuario autenticado de la petición
   ) {
-    return this.productsService.update(id, updateProductDto);
+    return this.productsService.update(id, updateProductDto, user);
   }
 
   // Elimina un producto por id (DELETE /products/:id)

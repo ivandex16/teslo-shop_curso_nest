@@ -11,6 +11,7 @@ import { DataSource, Repository } from 'typeorm';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { validate as isUUID } from 'uuid';
 import { Product, ProductImage } from './entities';
+import { User } from 'src/auth/entities/user.entity';
 
 @Injectable()
 export class ProductsService {
@@ -31,7 +32,7 @@ export class ProductsService {
   ) {}
 
   // Crear un nuevo producto con imágenes
-  async create(createProductDto: CreateProductDto) {
+  async create(createProductDto: CreateProductDto, user: User) {
     try {
       const { images = [], ...productDetails } = createProductDto;
 
@@ -41,6 +42,7 @@ export class ProductsService {
         images: images.map((image) =>
           this.producImageRepository.create({ url: image }),
         ),
+        user,
       });
       // Guardar el producto en la base de datos
       await this.producRepository.save(product);
@@ -109,7 +111,7 @@ export class ProductsService {
     };
   }
 
-  async update(id: string, updateProductDto: UpdateProductDto) {
+  async update(id: string, updateProductDto: UpdateProductDto, user: User) {
     // Extrae las imágenes del DTO de actualización, el resto de los campos se almacenan en 'toUpdate'
     const { images, ...toUpdate } = updateProductDto;
 
@@ -143,6 +145,7 @@ export class ProductsService {
         // product.images = [];
       }
 
+      product.user = user;
       // Guarda el producto actualizado dentro de la transacción
       await queryRunner.manager.save(product);
 
